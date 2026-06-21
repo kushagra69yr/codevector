@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drift-Free Pagination Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="landing-body">
+    <!-- Animated moving background -->
+    <div class="glass-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="landing-container">
+        <!-- Navigation Header -->
+        <header class="landing-header">
+            <div class="brand">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">CodeVector</span>
+            </div>
+            <a href="catalog.html" class="nav-btn">Launch App</a>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <span class="badge-glow">Performance Engine v1.0</span>
+            <h1 class="hero-title">Drift-Free Cursor Pagination</h1>
+            <p class="hero-subtitle">
+                A high-performance product feed implementation designed for massive scale. Browse 200,000+ items with O(log N) search speed and zero item duplicate overlap during concurrent updates.
+            </p>
+            <div class="hero-actions">
+                <a href="catalog.html" class="btn btn-primary btn-hero">
+                    <span>Enter Product Catalog</span>
+                    <span class="arrow-right">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card glassmorphism">
+                <div class="feature-icon">🛡️</div>
+                <h3>Drift-Free Concurrency</h3>
+                <p>
+                    Traditional OFFSET pagination causes items to shift and duplicate when new products are inserted. Our cursor-based logic pins coordinates to prevent duplicates and skips.
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card glassmorphism">
+                <div class="feature-icon">⚡</div>
+                <h3>Logarithmic Speed O(log N)</h3>
+                <p>
+                    Leverages compound database indexes <code>(category, created_at, id)</code> to query records directly. Seeks complete in under 25ms, independent of page depth.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card glassmorphism">
+                <div class="feature-icon">🚀</div>
+                <h3>High-Speed Seeding</h3>
+                <p>
+                    Includes an optimized seeding engine that populates 200,000 realistic products with staggered timestamps in less than 7 seconds.
+                </p>
+            </div>
+        </section>
+
+        <!-- Tech Specs Table -->
+        <section class="specs-section glassmorphism">
+            <h2>System Architecture</h2>
+            <div class="specs-table-wrapper">
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Technology</th>
+                            <th>Implementation Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Backend Framework</strong></td>
+                            <td>FastAPI (Python)</td>
+                            <td>High performance, type-safe API with auto-generated documentation.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ORM & Database</strong></td>
+                            <td>SQLAlchemy + SQLite / Postgres</td>
+                            <td>Dynamic DB engines with transaction-isolated bulk batch operations.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Index Structure</strong></td>
+                            <td>B-Tree Composite Indexes</td>
+                            <td>Covering indexes on <code>(created_at, id)</code> and <code>(category, created_at, id)</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aesthetics</strong></td>
+                            <td>Modern Vanilla CSS</td>
+                            <td>Glassmorphism layouts, sliding gradient glows, and hover micro-animations.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <p>© 2026 CodeVector Takehome Project. Built for speed, scale, and correctness.</p>
+        </footer>
+    </div>
+    <script src="bg.js"></script>
+</body>
+</html>
