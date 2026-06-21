@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drift-Free Product Catalog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <span class="logo-icon">⚡</span>
+                <div class="brand-text">
+                    <h1>CodeVector</h1>
+                    <p class="subtitle">High-Performance Product Feed</p>
+                </div>
+            </div>
+            <div class="system-stats">
+                <div class="stat-pill">
+                    <span class="stat-label">Database:</span>
+                    <span class="stat-value">200,000+ Items</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-label">Pagination:</span>
+                    <span class="stat-value highlight">Cursor-Based</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="main-layout">
+            <!-- Sidebar for Simulation Controls -->
+            <aside class="sidebar-panel">
+                <div class="panel-card glassmorphism">
+                    <h2>Concurrency Simulator</h2>
+                    <p class="panel-desc">
+                        Test how the pagination handles live database updates without item duplication or drift.
+                    </p>
+                    
+                    <div class="simulation-actions">
+                        <button id="inject-btn" class="btn btn-primary">
+                            <span class="btn-icon">📥</span>
+                            <span class="btn-text">Inject 50 New Products</span>
+                        </button>
+                    </div>
+
+                    <div id="simulation-toast" class="simulation-toast hidden">
+                        <div class="toast-header">
+                            <span class="toast-dot"></span>
+                            <h4>Simulation Info</h4>
+                        </div>
+                        <p class="toast-body">
+                            50 products added to database with fresh timestamps. The current cursor ensures these will not cause duplicate views or list shifting.
+                        </p>
+                    </div>
+
+                    <div class="concept-explanation">
+                        <h3>Why Cursor Pagination?</h3>
+                        <div class="explanation-item">
+                            <div class="exp-icon">🛡️</div>
+                            <div class="exp-text">
+                                <strong>No Duplication:</strong> Since we page relative to a cursor timestamp rather than a row offset, new products added at the top do not shift the remaining catalog into your next page.
+                            </div>
+                        </div>
+                        <div class="explanation-item">
+                            <div class="exp-icon">⚡</div>
+                            <div class="exp-text">
+                                <strong>Constant O(1) Speed:</strong> Traditional offset-based queries (e.g. <code>OFFSET 150000</code>) require database engine scanning all preceding records. Cursors leverage indexes to jump directly to the target record.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Catalog Section -->
+            <section class="catalog-section">
+                <!-- Filters & Controls Bar -->
+                <div class="controls-bar glassmorphism">
+                    <div class="category-filters">
+                        <button class="filter-pill active" data-category="">All Categories</button>
+                        <button class="filter-pill" data-category="Electronics">Electronics</button>
+                        <button class="filter-pill" data-category="Clothing">Clothing</button>
+                        <button class="filter-pill" data-category="Home & Kitchen">Home & Kitchen</button>
+                        <button class="filter-pill" data-category="Books">Books</button>
+                        <button class="filter-pill" data-category="Sports & Outdoors">Sports</button>
+                    </div>
+                    
+                    <div class="view-controls">
+                        <label for="limit-select">Page Size:</label>
+                        <select id="limit-select" class="custom-select">
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="products-grid" class="products-grid">
+                    <!-- Dynamic Product Cards Go Here -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="loader" class="loader hidden">
+                    <div class="spinner"></div>
+                    <p>Fetching products...</p>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div class="pagination-footer">
+                    <div class="stats-info">
+                        Showing <span id="displayed-count">0</span> products
+                    </div>
+                    <button id="load-more-btn" class="btn btn-secondary">
+                        <span>Load More Products</span>
+                        <span class="arrow">↓</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="bg.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
