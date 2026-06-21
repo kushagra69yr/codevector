@@ -1,3 +1,13 @@
+---
+title: Codevector
+emoji: ⚡
+colorFrom: indigo
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # High-Performance Cursor-Paginated Product Catalog
 
 A premium, high-performance product catalog engine and interactive dashboard built for browsing 200,000+ items with constant-time query speed and zero page overlap/drift under concurrent inserts. 
