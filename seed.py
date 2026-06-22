@@ -10,16 +10,36 @@ CATEGORIES = [
     "Toys", "Automotive", "Garden", "Grocery"
 ]
 
+CATEGORY_NOUNS = {
+    "Electronics": ["Smartphone", "Headphones", "Speaker", "Keyboard", "Laptop", "Charger", "Smartwatch", "Camera", "Tracker"],
+    "Clothing": ["T-Shirt", "Jeans", "Jacket", "Sneakers", "Socks", "Sweater", "Dress", "Hoodie", "Belt"],
+    "Home & Kitchen": ["Chair", "Desk", "Lamp", "Blender", "Coffee Maker", "Toaster", "Spatula", "Knife Set", "Dinnerware"],
+    "Books": ["Novel", "Textbook", "Biography", "Cookbook", "Thriller", "Comic Book", "Encyclopedia", "Dictionary"],
+    "Sports & Outdoors": ["Flask", "Water Bottle", "Backpack", "Tent", "Yoga Mat", "Dumbbell", "Sleeping Bag", "Compass"],
+    "Beauty": ["Lipstick", "Mascara", "Moisturizer", "Perfume", "Shampoo", "Face Wash", "Hair Dryer", "Sunscreen"],
+    "Toys": ["Action Figure", "Board Game", "Puzzle", "Lego Set", "Teddy Bear", "Toy Car", "Doll", "Water Gun"],
+    "Automotive": ["Tire", "Car Wax", "Wiper Blade", "Engine Oil", "GPS Tracker", "Seat Cover", "Jumper Cables", "Car Charger"],
+    "Garden": ["Lawn Mower", "Hose", "Flower Pot", "Seeds", "Pruning Shears", "Fertilizer", "Watering Can", "Shovel"],
+    "Grocery": ["Olive Oil", "Coffee Beans", "Cereal", "Pasta", "Chocolate Bar", "Green Tea", "Honey", "Maple Syrup"]
+}
+
+CATEGORY_PRICES = {
+    "Electronics": (49.99, 1299.99),
+    "Clothing": (14.99, 199.99),
+    "Home & Kitchen": (19.99, 499.99),
+    "Books": (5.99, 59.99),
+    "Sports & Outdoors": (9.99, 299.99),
+    "Beauty": (7.99, 149.99),
+    "Toys": (9.99, 199.99),
+    "Automotive": (12.99, 599.99),
+    "Garden": (9.99, 399.99),
+    "Grocery": (2.99, 39.99)
+}
+
 ADJECTIVES = [
     "Premium", "Wireless", "Eco-Friendly", "Ergonomic", "Portable", 
     "Smart", "Ultra", "Classic", "Mini", "Professional", 
     "Sleek", "Durable", "Compact", "Luxury", "Modern"
-]
-
-NOUNS = [
-    "Gadget", "Headphones", "Chair", "Speaker", "Backpack", 
-    "Flask", "Keyboard", "Watch", "Light", "Camera", 
-    "Tracker", "Charger", "Desk", "Lamp", "Bottle"
 ]
 
 def seed_database():
@@ -28,14 +48,12 @@ def seed_database():
     
     db = SessionLocal()
     
-    # Check if we already have data
-    existing_count = db.query(Product).count()
-    if existing_count >= 200000:
-        print(f"Database already contains {existing_count} products. Skipping seeding.")
-        db.close()
-        return
+    # We will clear the existing database to apply the new correlated values
+    print("Clearing existing products for new correlated database...")
+    db.query(Product).delete()
+    db.commit()
 
-    print("Generating 200,000 products...")
+    print("Generating 200,000 products with semantic correlations...")
     start_time = time.time()
     
     total_products = 200000
@@ -50,8 +68,11 @@ def seed_database():
         for i in range(batch_size):
             product_idx = batch_num + i + 1
             category = random.choice(CATEGORIES)
-            name = f"{random.choice(ADJECTIVES)} {random.choice(NOUNS)} #{product_idx:06d}"
-            price = round(random.uniform(4.99, 1499.99), 2)
+            noun = random.choice(CATEGORY_NOUNS[category])
+            name = f"{random.choice(ADJECTIVES)} {noun} #{product_idx:06d}"
+            
+            min_p, max_p = CATEGORY_PRICES[category]
+            price = round(random.uniform(min_p, max_p), 2)
             
             # Stagger timestamps backward by 5-15 seconds per product
             current_datetime -= timedelta(seconds=random.randint(5, 15))
