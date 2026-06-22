@@ -16,5 +16,8 @@ COPY . .
 # Run the seeding script to prepare the 200,000 product database in the container
 RUN python seed.py
 
+# Pre-train the Machine Learning models during container build
+RUN python train_model.py
+
 # Hugging Face Spaces binds to port 7860 by default
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
