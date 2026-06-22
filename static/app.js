@@ -193,6 +193,76 @@ injectBtn.addEventListener("click", async () => {
     }
 });
 
+// AI Smart Analyzer Integration
+const aiInput = document.getElementById("ai-input");
+const aiAnalyzeBtn = document.getElementById("ai-analyze-btn");
+const aiResults = document.getElementById("ai-results");
+const aiResCategory = document.getElementById("ai-res-category");
+const aiResPrice = document.getElementById("ai-res-price");
+const suggestionTags = document.querySelectorAll(".suggestion-tag");
+
+// Suggestions Event Listeners
+suggestionTags.forEach(tag => {
+    tag.addEventListener("click", () => {
+        aiInput.value = tag.getAttribute("data-text");
+        aiInput.focus();
+    });
+});
+
+// Trigger prediction on pressing Enter
+aiInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        triggerAiAnalysis();
+    }
+});
+
+aiAnalyzeBtn.addEventListener("click", triggerAiAnalysis);
+
+async function triggerAiAnalysis() {
+    const text = aiInput.value.trim();
+    if (!text) return;
+    
+    aiAnalyzeBtn.disabled = true;
+    const btnText = aiAnalyzeBtn.querySelector(".btn-text");
+    const originalText = btnText.textContent;
+    btnText.textContent = "Analyzing with AI...";
+    
+    try {
+        const response = await fetch("/api/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: text })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API prediction failed: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update UI elements
+            aiResCategory.textContent = data.predicted_category;
+            aiResPrice.textContent = `$${data.estimated_price.toFixed(2)}`;
+            
+            // Un-hide results panel
+            aiResults.classList.remove("hidden");
+            
+            // Apply micro-animation class for visual impact
+            aiResults.style.animation = 'none';
+            aiResults.offsetHeight; // Trigger reflow
+            aiResults.style.animation = null; 
+        }
+    } catch (err) {
+        console.error("AI Analysis error:", err);
+    } finally {
+        aiAnalyzeBtn.disabled = false;
+        btnText.textContent = originalText;
+    }
+}
+
 // Initial Load
 document.addEventListener("DOMContentLoaded", () => {
     fetchProducts(false);
