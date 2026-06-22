@@ -80,6 +80,40 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="panel-card glassmorphism ai-panel" style="margin-top: 20px;">
+                    <h2>AI Smart Analyzer</h2>
+                    <p class="panel-desc">
+                        Type any product description or name, and our on-device ML model will predict its category and estimate its fair retail price.
+                    </p>
+                    
+                    <div class="analyzer-inputs">
+                        <input type="text" id="ai-input" placeholder="e.g. Ergonomic gaming keyboard" class="custom-input">
+                        
+                        <div class="template-suggestions">
+                            <span class="suggestion-tag" data-text="Premium Wireless Headphones">🎧 Audio</span>
+                            <span class="suggestion-tag" data-text="Ergonomic leather office chair">🪑 Office</span>
+                            <span class="suggestion-tag" data-text="Organic green tea leaves pack">🍵 Tea</span>
+                            <span class="suggestion-tag" data-text="Waterproof hiking tent 4 persons">⛺ Tent</span>
+                        </div>
+
+                        <button id="ai-analyze-btn" class="btn btn-primary" style="width: 100%;">
+                            <span class="btn-icon">🧠</span>
+                            <span class="btn-text">Analyze with AI</span>
+                        </button>
+                    </div>
+
+                    <div id="ai-results" class="ai-results hidden">
+                        <div class="result-row">
+                            <span class="result-label">Predicted Category:</span>
+                            <span id="ai-res-category" class="ai-pill">Electronics</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Estimated Price:</span>
+                            <span id="ai-res-price" class="ai-price">$129.99</span>
+                        </div>
+                    </div>
+                </div>
             </aside>
 
             <!-- Catalog Section -->
