@@ -73,10 +73,33 @@ def encode_cursor(created_at: datetime, product_id: str) -> Optional[str]:
     encoded = base64.b64encode(json.dumps(data).encode("utf-8")).decode("utf-8")
     return encoded
 
+import pickle
+from train_model import MODEL_PATH, train_model
+
+ml_models = {}
+
 @app.on_event("startup")
 def startup_event():
     # Make sure database tables exist
     init_db()
+    
+    # Load ML models
+    if not os.path.exists(MODEL_PATH):
+        print("ML model pickle not found. Running training script...")
+        try:
+            train_model()
+        except Exception as e:
+            print(f"Failed to auto-train ML model: {e}")
+            
+    if os.path.exists(MODEL_PATH):
+        try:
+            with open(MODEL_PATH, 'rb') as f:
+                data = pickle.load(f)
+                ml_models['category_pipeline'] = data['category_pipeline']
+                ml_models['price_pipeline'] = data['price_pipeline']
+                print("ML models loaded successfully!")
+        except Exception as e:
+            print(f"Error loading ML models: {e}")
 
 @app.get("/api/products", response_model=PaginatedProductsResponse)
 def get_products(
@@ -207,6 +230,46 @@ def inject_products():
         return {"status": "success", "message": "Injected 50 products at the top of the catalog"}
     finally:
         db.close()
+
+class PredictRequest(BaseModel):
+    name: str
+
+class PredictResponse(BaseModel):
+    success: bool
+    predicted_category: str
+    estimated_price: float
+
+@app.post("/api/predict", response_model=PredictResponse)
+def predict(request: PredictRequest):
+    if 'category_pipeline' not in ml_models or 'price_pipeline' not in ml_models:
+        raise HTTPException(status_code=503, detail="ML Models are not loaded or initialized yet.")
+        
+    try:
+        # Perform prediction
+        pred_cat = ml_models['category_pipeline'].predict([request.name])[0]
+        pred_price = ml_models['price_pipeline'].predict([request.name])[0]
+        # Keep price realistic and >= 2.99
+        pred_price = max(2.99, round(float(pred_price), 2))
+        
+        return PredictResponse(
+            success=True,
+            predicted_category=pred_cat,
+            estimated_price=pred_price
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+
+@app.post("/api/train")
+def trigger_training():
+    try:
+        train_model()
+        with open(MODEL_PATH, 'rb') as f:
+            data = pickle.load(f)
+            ml_models['category_pipeline'] = data['category_pipeline']
+            ml_models['price_pipeline'] = data['price_pipeline']
+        return {"status": "success", "message": "Model retrained and reloaded successfully!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(e)}")
 
 # Serves static files for our UI
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
