@@ -1,5 +1,5 @@
 ---
-title: Codevector
+title: High-Performance Product Catalog Engine
 emoji: ⚡
 colorFrom: indigo
 colorTo: green
@@ -8,9 +8,9 @@ app_port: 7860
 pinned: false
 ---
 
-# High-Performance Cursor-Paginated Product Catalog
+# High-Performance Product Catalog Engine
 
-A premium, high-performance product catalog engine and interactive dashboard built for browsing 200,000+ items with constant-time query speed and zero page overlap/drift under concurrent inserts. 
+A premium, high-performance product catalog engine and interactive dashboard built for browsing 200,000+ items with constant-time query speed and zero page overlap/drift under concurrent inserts.
 
 Designed and implemented as a CodeVector take-home task submission.
 
@@ -22,8 +22,6 @@ Designed and implemented as a CodeVector take-home task submission.
 - **Interactive Concurrency Simulator:** Side-by-side dashboard controls that simulate live database writes in the background so you can observe the boundary-pinning in real-time.
 - **Premium Aesthetics:** Modern glassmorphic dark-mode interface with color-shifting background auroras, interactive cursor-reactive constellation physics, and smooth hover micro-animations.
 
----
-
 ## 🛠️ Tech Stack
 
 - **Backend:** Python (FastAPI + Uvicorn)
@@ -31,8 +29,6 @@ Designed and implemented as a CodeVector take-home task submission.
 - **Supported Databases:** SQLite (default local) and PostgreSQL (Neon/Supabase)
 - **Frontend:** Vanilla HTML5, CSS3, & ES6 JavaScript (served statically by FastAPI)
 - **Visual Effects:** HTML5 Canvas API
-
----
 
 ## 💻 How to Setup and Run Locally
 
@@ -61,9 +57,7 @@ Designed and implemented as a CodeVector take-home task submission.
    ./.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
    ```
 6. **Open in Browser:**
-   Go to [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
----
+   Go to http://127.0.0.1:8000
 
 ## 🧪 Running Concurrency & Performance Tests
 
