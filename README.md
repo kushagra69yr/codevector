@@ -8,64 +8,390 @@ app_port: 7860
 pinned: false
 ---
 
-# High-Performance Product Catalog Engine
+<div align="center">
 
-A premium, high-performance product catalog engine and interactive dashboard built for browsing 200,000+ items with constant-time query speed and zero page overlap/drift under concurrent inserts.
+# ⚡ High-Performance Product Catalog Engine
 
-Designed and implemented as a CodeVector take-home task submission.
+### Scalable • Drift-Free • Cursor-Based • Concurrency Aware
 
-## 🚀 Key Features
+A production-style product catalog backend and interactive dashboard designed to demonstrate **stable pagination, indexed database queries, and consistent browsing while data changes in real time**.
 
-- **Drift-Free Cursor Pagination:** Pins queries to `(created_at, id)` coordinates rather than linear numeric offsets. Concurrent item injections at the top of the feed will not push existing items down, resulting in **zero duplicates** and **zero missed products** during active browsing.
-- **Logarithmic Seek Time O(log N):** Uses composite indexes on `(category, created_at DESC, id DESC)` and `(created_at DESC, id DESC)`. Deep-page seeks (e.g. at page depth 100,000) execute in **under 25ms**, avoiding linear database table scans.
-- **High-Speed Seeding Engine:** CLI seeding utility populating 200,000 fully structured products with staggered timestamps in **under 7 seconds**.
-- **Interactive Concurrency Simulator:** Side-by-side dashboard controls that simulate live database writes in the background so you can observe the boundary-pinning in real-time.
-- **Premium Aesthetics:** Modern glassmorphic dark-mode interface with color-shifting background auroras, interactive cursor-reactive constellation physics, and smooth hover micro-animations.
+[🚀 **Live Demo**](https://kushagra6922-codevector.hf.space) · [💻 **Source Code**](https://github.com/kushagra69yr/codevector)
+
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
+![Pagination](https://img.shields.io/badge/Pagination-Cursor--Based-7C3AED)
+
+</div>
+
+---
+
+## 🎯 The Problem
+
+Traditional **OFFSET-based pagination** becomes inefficient and unreliable as datasets grow and new records are inserted while users are browsing.
+
+A user may see:
+
+- ❌ Duplicate products across pages
+- ❌ Products skipped between pages
+- ❌ Increasing query cost for deep pages
+- ❌ Unstable results when the dataset changes
+
+**This project solves that problem using cursor-based pagination with stable `(created_at, id)` ordering and database indexes.**
+
+---
+
+## 💡 The Core Idea
+
+Instead of asking the database:
+
+> “Skip the first 100,000 rows and give me the next 20.”
+
+we ask:
+
+> “Start immediately after the last product I received.”
+
+### Pagination Flow
+
+```text
+┌───────────────┐
+│   User opens  │
+│    catalog    │
+└───────┬───────┘
+        │
+        ▼
+┌──────────────────────┐
+│ Request first page   │
+│ cursor = none        │
+└──────────┬───────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│ Database uses indexed       │
+│ (created_at, id) ordering   │
+└─────────────┬───────────────┘
+              │
+              ▼
+       ┌──────────────┐
+       │  Products    │
+       │  1 → 20      │
+       └──────┬───────┘
+              │
+              ▼
+┌─────────────────────────────┐
+│ Return last item's cursor   │
+│ (created_at, id)             │
+└─────────────┬───────────────┘
+              │
+              ▼
+┌─────────────────────────────┐
+│ Next request starts AFTER   │
+│ that exact cursor           │
+└─────────────┬───────────────┘
+              │
+              ▼
+       ┌──────────────┐
+       │  Products    │
+       │  21 → 40     │
+       └──────────────┘
+
+     New products can be inserted
+     without shifting the cursor boundary.
+```
+
+---
+
+## 🔥 Why This Project Is Interesting
+
+The project is not just a product listing API. It demonstrates how to design a backend for **large, changing datasets** while keeping pagination stable and queries efficient.
+
+### 1. 🧭 Drift-Free Cursor Pagination
+
+Pagination is anchored to `(created_at, id)` instead of a numeric offset. This keeps the boundary stable even when new products are inserted near the beginning of the catalog.
+
+### 2. ⚡ Indexed Database Seeks
+
+Composite indexes are used to support efficient lookups on the pagination and category fields rather than forcing the database to scan an increasingly large number of rows.
+
+### 3. 🔄 Concurrent Insert Simulation
+
+The dashboard can simulate products being inserted while a user is browsing. This makes the pagination problem visible instead of only describing it theoretically.
+
+### 4. 📊 Performance Testing
+
+The repository includes a test script for comparing pagination approaches and checking behavior during concurrent inserts.
+
+### 5. 🎨 Interactive Dashboard
+
+The frontend includes a modern glassmorphism interface, animated visual effects, catalog browsing, and controls for demonstrating the concurrency scenario.
+
+---
+
+## 📈 Project Scale
+
+| Capability | Implementation |
+|---|---|
+| Dataset | **200,000+ products** |
+| Pagination | **Cursor-based** |
+| Stable cursor | **`created_at + id`** |
+| Database indexing | **Composite indexes** |
+| Concurrency | **Background insert simulation** |
+| Backend | **FastAPI + Uvicorn** |
+| ORM | **SQLAlchemy** |
+| Database | **SQLite / PostgreSQL** |
+| Frontend | **HTML + CSS + JavaScript** |
+
+> **Performance figures in this README refer to the project's reported test results. Re-run the included benchmark on your environment to reproduce them.**
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                    ┌──────────────────────┐
+                    │      Web Browser     │
+                    │ Interactive Dashboard │
+                    └──────────┬───────────┘
+                               │ HTTP
+                               ▼
+                    ┌──────────────────────┐
+                    │      FastAPI         │
+                    │  REST API / Routing  │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │     SQLAlchemy       │
+                    │    ORM / Queries     │
+                    └──────────┬───────────┘
+                               │
+                     Indexed Queries
+                               │
+                               ▼
+              ┌────────────────────────────────┐
+              │        SQLite / PostgreSQL     │
+              │                                │
+              │  Products + Composite Indexes  │
+              └───────────────┬────────────────┘
+                              │
+                 ┌────────────┴─────────────┐
+                 │                          │
+                 ▼                          ▼
+        ┌─────────────────┐       ┌─────────────────┐
+        │ Cursor-based    │       │ Concurrent      │
+        │ Pagination      │       │ Inserts         │
+        └─────────────────┘       └─────────────────┘
+```
+
+---
+
+## 🧠 Technical Deep Dive
+
+### Cursor-Based Pagination
+
+The cursor represents the last item seen by the client. The next query uses that boundary to continue from the correct position.
+
+Conceptually:
+
+```text
+Current page:
+
+... → Product A → Product B → Product C
+                         ▲
+                         │
+                    Cursor = C
+
+Next page:
+
+Product C → [start after C] → Product D → Product E → ...
+```
+
+The combination of `created_at` and `id` provides a deterministic ordering, including when multiple products share the same timestamp.
+
+### Why `(created_at, id)`?
+
+`created_at` gives the primary chronological ordering, while `id` acts as a deterministic tie-breaker.
+
+That means the database can maintain a predictable order even when timestamps are identical.
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Python (FastAPI + Uvicorn)
-- **Database ORM:** SQLAlchemy
-- **Supported Databases:** SQLite (default local) and PostgreSQL (Neon/Supabase)
-- **Frontend:** Vanilla HTML5, CSS3, & ES6 JavaScript (served statically by FastAPI)
-- **Visual Effects:** HTML5 Canvas API
+**Backend**
+- Python
+- FastAPI
+- Uvicorn
 
-## 💻 How to Setup and Run Locally
+**Database & Data Access**
+- SQLAlchemy
+- SQLite
+- PostgreSQL
+- Composite database indexes
 
-1. **Clone or Download** this repository.
-2. **Open your terminal** in the project directory.
-3. **Initialize the Virtual Environment & Dependencies:**
-   ```bash
-   python -m venv .venv
-   # Windows:
-   .\.venv\Scripts\pip install fastapi uvicorn sqlalchemy psycopg2-binary
-   # macOS/Linux:
-   ./.venv/bin/pip install fastapi uvicorn sqlalchemy psycopg2-binary
-   ```
-4. **Seed the 200,000 Products Database:**
-   ```bash
-   # Windows:
-   .\.venv\Scripts\python.exe seed.py
-   # macOS/Linux:
-   ./.venv/bin/python seed.py
-   ```
-5. **Launch the FastAPI Server:**
-   ```bash
-   # Windows:
-   .\.venv\Scripts\uvicorn.exe main:app --host 127.0.0.1 --port 8000
-   # macOS/Linux:
-   ./.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
-   ```
-6. **Open in Browser:**
-   Go to http://127.0.0.1:8000
+**Frontend**
+- HTML5
+- CSS3
+- Vanilla JavaScript / ES6
+- HTML5 Canvas effects
 
-## 🧪 Running Concurrency & Performance Tests
+**Engineering Concepts**
+- Cursor pagination
+- Database indexing
+- Query performance
+- Concurrent writes
+- API design
+- Large dataset handling
 
-We've included a self-contained test script that measures the speed difference between offset and cursor pagination, and simulates concurrent background inserts to verify duplicate prevention:
+---
+
+## 🚀 Live Demo
+
+### 👉 [Open the High-Performance Product Catalog Engine](https://kushagra6922-codevector.hf.space)
+
+Try the catalog, explore pagination, and use the concurrency controls to see how the system behaves while products are being inserted.
+
+> **Demo:** `https://kushagra6922-codevector.hf.space`
+
+---
+
+## 💻 Run Locally
+
+### 1. Clone
 
 ```bash
-# Windows:
+git clone https://github.com/kushagra69yr/codevector.git
+cd codevector
+```
+
+### 2. Create the environment
+
+```bash
+python -m venv .venv
+```
+
+### 3. Install dependencies
+
+**Windows**
+
+```bash
+.\.venv\Scripts\pip install fastapi uvicorn sqlalchemy psycopg2-binary
+```
+
+**macOS/Linux**
+
+```bash
+./.venv/bin/pip install fastapi uvicorn sqlalchemy psycopg2-binary
+```
+
+### 4. Seed 200,000 products
+
+**Windows**
+
+```bash
+.\.venv\Scripts\python.exe seed.py
+```
+
+**macOS/Linux**
+
+```bash
+./.venv/bin/python seed.py
+```
+
+### 5. Start the server
+
+```bash
+uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## 🧪 Test Pagination & Concurrency
+
+Run the included benchmark and concurrency test:
+
+**Windows**
+
+```bash
 .\.venv\Scripts\python.exe test_pagination.py
-# macOS/Linux:
+```
+
+**macOS/Linux**
+
+```bash
 ./.venv/bin/python test_pagination.py
 ```
+
+The test compares pagination behavior and simulates concurrent inserts to verify that the cursor-based approach avoids page overlap/drift.
+
+---
+
+## 📂 Project Structure
+
+```text
+codevector/
+├── main.py                 # FastAPI application
+├── models.py               # Database models
+├── database.py             # Database configuration
+├── seed.py                 # Large dataset generator
+├── test_pagination.py      # Pagination & concurrency tests
+├── static/                 # Frontend assets
+├── templates/              # HTML templates (if used)
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
+```
+
+---
+
+## 🎓 What I Learned
+
+Building this project helped me understand practical backend engineering concepts beyond basic CRUD APIs:
+
+- Why offset pagination becomes expensive at scale
+- How cursor pagination works
+- How composite indexes improve database access
+- How concurrent writes can affect pagination
+- How to design deterministic ordering
+- How to benchmark backend/database behavior
+- How API and database design work together
+
+---
+
+## 🔮 Future Improvements
+
+- Redis caching for frequently accessed catalog pages
+- PostgreSQL query-plan monitoring
+- Rate limiting and API authentication
+- Docker Compose for local PostgreSQL deployment
+- Automated CI/CD performance benchmarks
+- Load testing with thousands of concurrent requests
+
+---
+
+## 👨‍💻 Author
+
+**Kushagra Burman**  
+B.E. Artificial Intelligence & Machine Learning  
+BMS Institute of Technology and Management, Bengaluru
+
+[GitHub](https://github.com/kushagra69yr) · [Portfolio](https://kushagra69yr.github.io/)
+
+---
+
+<div align="center">
+
+### ⭐ If you find the project interesting, consider starring the repository!
+
+**Built to explore what happens when pagination meets scale and concurrency.**
+
+</div>
